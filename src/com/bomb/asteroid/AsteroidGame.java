@@ -1,10 +1,12 @@
 package com.bomb.asteroid;
 
+import org.dyn4j.geometry.Rectangle;
 import org.dyn4j.geometry.Vector2;
 import org.newdawn.slick.*;
 
 import java.io.File;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -15,6 +17,8 @@ public class AsteroidGame extends BasicGame{
 
     public static final int UNIT_LENGTH = 50;
     public static final Vector2 GRAVITY = new Vector2(0, 50);
+
+    private static AsteroidGame instance;
 
     private Set<GameObject> gameObjects;
 
@@ -43,8 +47,17 @@ public class AsteroidGame extends BasicGame{
         }
     }
 
+    public static AsteroidGame getInstance(){
+        return instance;
+    }
+
     public AsteroidGame(String name){
         super(name);
+        AsteroidGame.instance = this;
+    }
+
+    public Set<GameObject> getGameObjects() {
+        return gameObjects;
     }
 
     @Override
@@ -58,7 +71,17 @@ public class AsteroidGame extends BasicGame{
     @Override
     public void update(GameContainer gameContainer, int delta) throws SlickException {
         double dt = (double)delta / 1000;
-        for(GameObject gameObject : gameObjects){
+
+        Iterator<GameObject> objectIterator = gameObjects.iterator();
+        while(objectIterator.hasNext()){
+            GameObject gameObject = objectIterator.next();
+
+            //cleanup destroyed objects
+            if(gameObject.isDestroyed()){
+                objectIterator.remove();
+                continue;
+            }
+
             gameObject.update(this, gameContainer, dt);
         }
 

@@ -1,6 +1,5 @@
 package com.bomb.asteroid;
 
-import com.sun.glass.events.NpapiEvent;
 import org.dyn4j.geometry.Polygon;
 import org.dyn4j.geometry.Transform;
 import org.dyn4j.geometry.Vector2;
@@ -271,5 +270,10 @@ public class Ship extends GameObject{
     @Override
     public GameObject rotate(Transform rotation) {
         return null;
+    }
+
+    @Override
+    public void destroy() {
+        destroyed = true;
     }
 }

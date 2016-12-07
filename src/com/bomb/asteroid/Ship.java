@@ -22,7 +22,7 @@ public class Ship extends GameObject{
         Vector2 center = body.getCenter();
         body.translate(new Vector2(center.x, center.y, position.x, position.y));
 
-        this.speed = 10 * UNIT_LENGTH;
+        this.speed = 1 * UNIT_LENGTH;
         this.velocity = new Vector2(0,0);
         this.acceleration = new Vector2(0,0);
         terminalVelocity = 10 * UNIT_LENGTH;
@@ -44,6 +44,7 @@ public class Ship extends GameObject{
         //turn/accelerate
         Transform transform = new Transform();
 
+        //if boosters are active, set the accleration in the direction the ship is pointing
         if(container.getInput().isKeyDown(Input.KEY_UP)) {
             acceleration = getDirection();
             acceleration.setMagnitude(speed);
@@ -51,18 +52,34 @@ public class Ship extends GameObject{
             acceleration = new Vector2(0,0);
         }
 
+        //add acceleration to current velocity
         velocity.add(acceleration);
 
+        //do not move faster than terminalVelocity
         if(velocity.getMagnitude() > terminalVelocity){
             velocity.setMagnitude(terminalVelocity);
         }
 
-        velocity.setMagnitude(velocity.getMagnitude() * dt);
+        //update position
+        position = velocity.copy();
 
-        transform.translate(velocity);
+        //multiply the distance traveled by time step
+        position.setMagnitude(velocity.getMagnitude() * dt);
 
-        body.translate(transform.getTranslation());
+        //move the ship
+        body.translate(position);
 
+        if(container.getInput().isKeyDown(Input.KEY_RIGHT)){
+            Vector2 center = body.getCenter();
+            transform.rotate(.05, center.x, center.y);
+        }
+        if(container.getInput().isKeyDown(Input.KEY_LEFT)){
+            Vector2 center = body.getCenter();
+            transform.rotate(-.05, center.x, center.y);
+        }
+
+
+        body.rotateAboutCenter(transform.getRotation());
 
 /*
 //jump/fall/turn

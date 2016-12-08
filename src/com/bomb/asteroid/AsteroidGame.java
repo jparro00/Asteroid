@@ -20,8 +20,6 @@ import java.util.Set;
 public class AsteroidGame extends BasicGame{
 
 
-    public static final int UNIT_LENGTH = 50;
-    public static final Vector2 GRAVITY = new Vector2(0, 50);
     public static final int WIDTH = 640;
     public static final int HEIGHT = 360;
     private static final Sat sat = new Sat();
@@ -40,9 +38,10 @@ public class AsteroidGame extends BasicGame{
 
             app = new AppGameContainer(new ScalableGame(new AsteroidGame("Asteroid"), WIDTH, HEIGHT));
             //app.setDisplayMode(640, 480, false);
-            //app.setDisplayMode(1920, 1080, false);
+            app.setDisplayMode(1920, 1080, true);
 
-            app.setShowFPS(true);
+            app.setShowFPS(false);
+
             app.setTargetFrameRate(60);
             app.start();
 
@@ -106,22 +105,6 @@ public class AsteroidGame extends BasicGame{
     public void initLevel(){
 
         spawnQueue = new HashSet<>();
-        gameObjects = new HashSet<>();
-
-        //eventually we will need to preserve the ship object from the last load
-        gameObjects.add(new Ship(new Vector2(250, 250)));
-        gameObjects.add(new Asteroid(Asteroid.Size.LARGE, new Vector2(100, 100)));
-        gameObjects.add(new Asteroid(Asteroid.Size.LARGE, new Vector2(300, 300)));
-        gameObjects.add(new Asteroid(Asteroid.Size.LARGE, new Vector2(100, 300)));
-        gameObjects.add(new Asteroid(Asteroid.Size.LARGE, new Vector2(100, 300)));
-        gameObjects.add(new Asteroid(Asteroid.Size.LARGE, new Vector2(100, 300)));
-
-    }
-
-    @Override
-    public void init(GameContainer gameContainer) throws SlickException {
-
-        spawnQueue = new HashSet<>();
 
         gameObjects = new HashSet<>();
         Ship ship = new Ship(new Vector2(WIDTH/2, HEIGHT/2));
@@ -134,6 +117,7 @@ public class AsteroidGame extends BasicGame{
             System.out.println(vertex);
         }
 
+        //initialize asteroids
         for(int i = 0; i < 6; i++){
             int x, y;
             Random random = new Random();
@@ -148,7 +132,11 @@ public class AsteroidGame extends BasicGame{
             gameObjects.add(asteroid);
         }
 
+    }
 
+    @Override
+    public void init(GameContainer gameContainer) throws SlickException {
+        initLevel();
     }
 
     public int countGameObject(Class c){
@@ -186,6 +174,10 @@ public class AsteroidGame extends BasicGame{
 
             //cleanup destroyed objects
             if(gameObject.isDestroyed()){
+                if(gameObject instanceof Ship){
+                    initLevel();
+                    return;
+                }
                 objectIterator.remove();
                 continue;
             }

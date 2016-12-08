@@ -12,19 +12,23 @@ public class Ship extends GameObject{
 
     public static final double UNIT_LENGTH = 10;
 
-    double terminalVelocity;
-    double speed;
+    private double terminalVelocity;
+    private double speed;
+    private int maxBullets;
 
     public Ship(){
+        super();
         this.body = new Polygon(new Vector2(0,0), new Vector2(10,10), new Vector2(10,15), new Vector2(7.5, 17.5), new Vector2(-7.5, 17.5), new Vector2(-10,15), new Vector2(-10,10));
-        position = new Vector2(250, 250);
-        Vector2 center = body.getCenter();
-        body.translate(new Vector2(center.x, center.y, position.x, position.y));
-
         this.speed = 1 * UNIT_LENGTH;
         this.velocity = new Vector2(0,0);
         this.acceleration = new Vector2(0,0);
-        terminalVelocity = 10 * UNIT_LENGTH;
+        this.terminalVelocity = 10 * UNIT_LENGTH;
+        this.maxBullets = 3;
+    }
+
+    public Ship(Vector2 position){
+        this();
+        setPosition(position);
     }
 
     public Vector2 getDirection(){
@@ -39,9 +43,21 @@ public class Ship extends GameObject{
     }
 
     public void update(BasicGame engine, GameContainer container, double dt) throws SlickException {
+        super.update(engine, container, dt);
 
         //turn/accelerate
         Transform transform = new Transform();
+
+        if(container.getInput().isKeyPressed(Input.KEY_SPACE)) {
+            if(context.countGameObject(Bullet.class) < maxBullets){
+                Vector2 front = body.getVertices()[0].copy();
+                Vector2 direction = getDirection();
+                front.add(direction.copy().multiply(10));
+                direction.setMagnitude(direction.getMagnitude() * 10);
+                Bullet bullet = new Bullet(front, direction);
+                context.add(bullet);
+            }
+        }
 
         //if boosters are active, set the accleration in the direction the ship is pointing
         if(container.getInput().isKeyDown(Input.KEY_UP)) {
@@ -60,13 +76,13 @@ public class Ship extends GameObject{
         }
 
         //update position
-        position = velocity.copy();
+        Vector2 movement = velocity.copy();
 
         //multiply the distance traveled by time step
-        position.setMagnitude(velocity.getMagnitude() * dt);
+        movement.setMagnitude(velocity.getMagnitude() * dt);
 
         //move the ship
-        body.translate(position);
+        body.translate(movement);
 
         if(container.getInput().isKeyDown(Input.KEY_RIGHT)){
             Vector2 center = body.getCenter();
@@ -245,31 +261,6 @@ public class Ship extends GameObject{
             body.rotate(.05, center.x, center.y);
         }
         */
-    }
-
-    public void render(GameContainer container, Graphics g) throws SlickException{
-
-        float originX, originY, currentX, currentY, newX, newY;
-
-        Vector2[] points = body.getVertices();
-        originX = (float)points[0].x;
-        originY = (float)points[0].y;
-
-        for(int i = 0; i < points.length - 1; i++){
-            g.drawLine((float) points[i].x, (float) points[i].y, (float) points[i + 1].x, (float) points[i + 1].y);
-        }
-        g.drawLine((float) points[points.length - 1].x, (float) points[points.length - 1].y, originX, originY);
-
-    }
-
-    @Override
-    public GameObject move(Transform movement) {
-        return null;
-    }
-
-    @Override
-    public GameObject rotate(Transform rotation) {
-        return null;
     }
 
     @Override
